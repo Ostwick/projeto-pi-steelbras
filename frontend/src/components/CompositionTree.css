@@ -1,0 +1,173 @@
+.composition-tree {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  color: #111;
+}
+
+.composition-tree.loading {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
+
+.composition-header {
+  background: #f8f9fa;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.composition-header h3 {
+  margin: 0 0 16px 0;
+  color: #333;
+}
+
+.composition-totals {
+  display: flex;
+  gap: 24px;
+}
+
+.total-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.total-item .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.total-item .value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.total-item .value.highlight {
+  color: #28a745;
+}
+
+.components-list {
+  padding: 20px;
+}
+
+.components-list h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.component {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.component.level-1 {
+  margin-left: 20px;
+  background: #f0f0f0;
+}
+
+.component-header {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.component-info {
+  flex: 1;
+}
+
+.component-info strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.component-code {
+  font-size: 16px;
+  color: #111 !important;
+  font-weight: 700;
+}
+
+.component-name {
+  font-size: 12px;
+  color: #111 !important;
+  font-weight: 600;
+}
+
+.component-costs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.cost-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cost-item .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111;
+}
+
+.cost-item .value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.cost-item .value.highlight {
+  color: #28a745;
+}
+
+.cost-history {
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 12px;
+}
+
+.history-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.history-list {
+  display: flex;
+  color: #111;
+  gap: 6px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-date {
+  color: #999;
+}
+
+.history-cost {
+  color: #333;
+  font-weight: 600;
+}

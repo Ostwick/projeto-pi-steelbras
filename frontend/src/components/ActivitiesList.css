@@ -1,0 +1,126 @@
+.activities-list {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.activities-list.loading,
+.activities-list.empty {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
+
+.activities-header {
+  background: #f8f9fa;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.activities-header h4 {
+  margin: 0;
+  color: #333;
+  flex: 1;
+}
+
+.activities-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.activities-total .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.activities-total .value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.activities-table {
+  overflow-x: auto;
+}
+
+.activities-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.activities-table th {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: #666;
+  border-bottom: 1px solid #eee;
+  text-transform: uppercase;
+}
+
+.activities-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  color: #333;
+}
+
+.activities-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.activities-table td.activity-name {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.activities-table td.description {
+  color: #999;
+  font-size: 12px;
+}
+
+.activities-table td.quantity,
+.activities-table td.cost,
+.activities-table td.date {
+  text-align: right;
+}
+
+.activities-table td.cost.highlight {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.activities-table td.date {
+  color: #999;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .activities-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .activities-total {
+    align-items: flex-start;
+  }
+
+  .activities-table {
+    font-size: 12px;
+  }
+
+  .activities-table th,
+  .activities-table td {
+    padding: 8px 12px;
+  }
+}

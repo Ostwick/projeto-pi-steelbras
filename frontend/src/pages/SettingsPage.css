@@ -1,0 +1,257 @@
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.settings-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #334155;
+}
+
+.settings-header h1 {
+  font-size: 28px;
+  color: #60a5fa;
+  margin: 0 0 4px 0;
+}
+
+.settings-header p {
+  color: #94a3b8;
+  font-size: 14px;
+  margin: 0;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #dc2626;
+  border-radius: 4px;
+  color: #fca5a5;
+  font-size: 13px;
+}
+
+.error-banner svg {
+  flex-shrink: 0;
+  color: #ef4444;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 16px;
+}
+
+.settings-section {
+  background: #16213e;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.settings-section:hover {
+  border-color: #475569;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.settings-section h2 {
+  font-size: 16px;
+  color: #60a5fa;
+  margin: 0 0 8px 0;
+}
+
+.section-description {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+}
+
+/* Status Services */
+.loading-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 30px;
+  color: #94a3b8;
+}
+
+.loading-status svg {
+  color: #60a5fa;
+}
+
+.services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-item {
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 1px solid #334155;
+  transition: all 0.3s;
+}
+
+.service-item:hover {
+  border-color: #475569;
+}
+
+.service-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.service-name {
+  font-size: 13px;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-badge.ok {
+  background: rgba(22, 163, 74, 0.2);
+  color: #86efac;
+}
+
+.status-badge.ok svg {
+  color: #16a34a;
+}
+
+.status-badge.offline,
+.status-badge.unknown {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.status-badge.offline svg,
+.status-badge.unknown svg {
+  color: #dc2626;
+}
+
+/* Info Section */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border-left: 3px solid #60a5fa;
+}
+
+.info-label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 13px;
+  color: #60a5fa;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+/* Shortcuts */
+.shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shortcut-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #60a5fa;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.shortcut-link:hover {
+  background: rgba(96, 165, 250, 0.2);
+  border-color: #60a5fa;
+  transform: translateX(4px);
+}
+
+/* About */
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.about-content p {
+  margin: 0;
+}
+
+.about-content strong {
+  color: #60a5fa;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-section {
+    padding: 16px;
+  }
+}
