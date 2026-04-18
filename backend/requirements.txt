@@ -8,3 +8,4 @@ python-dotenv==1.0.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
 cors==1.0.1
+cryptography==44.0.1

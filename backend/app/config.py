@@ -50,6 +50,13 @@ class Settings(BaseSettings):
     # CORS
     frontend_url: str = "http://localhost:5173"
 
+    # SMTP Alerts
+    smtp_server: Optional[str] = None
+    smtp_port: int = 465
+    smtp_user: Optional[str] = None
+    smtp_pass: Optional[str] = None
+    alerts_secret_key: Optional[str] = None
+
     # Sync/ETL
     sync_enabled: bool = True
     sync_interval_minutes: int = 60
