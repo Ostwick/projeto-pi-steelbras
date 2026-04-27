@@ -63,11 +63,10 @@ async def run_sync(
 @router.get("/runs")
 async def get_sync_runs(
     limit: int = Query(default=20, ge=1, le=200),
-    source_db: Session = Depends(get_source_db),
     app_db: Session = Depends(get_app_db),
 ):
     """Lista historico de execucoes de sincronizacao."""
-    service = SyncService(source_db=source_db, app_db=app_db)
+    service = SyncService(source_db=None, app_db=app_db)
 
     try:
         return {"runs": service.get_last_runs(limit=limit)}
@@ -78,11 +77,10 @@ async def get_sync_runs(
 @router.get("/products-status")
 async def get_products_status(
     limit: int = Query(default=200, ge=1, le=2000),
-    source_db: Session = Depends(get_source_db),
     app_db: Session = Depends(get_app_db),
 ):
     """Retorna ultima atualizacao por produto no PostgreSQL."""
-    service = SyncService(source_db=source_db, app_db=app_db)
+    service = SyncService(source_db=None, app_db=app_db)
 
     try:
         return {"products": service.get_product_status(limit=limit)}

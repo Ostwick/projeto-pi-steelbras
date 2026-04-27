@@ -121,44 +121,6 @@ export const SyncPage = () => {
           )}
         </button>
 
-        <div className="sync-debug">
-          <div className="sync-debug-title">Debug por dataset</div>
-          <div className="sync-debug-buttons">
-            <button
-              type="button"
-              className="btn-sync-debug"
-              onClick={() => runSyncRequest('custo_contabil')}
-              disabled={syncing || loading}
-            >
-              Custo Contabil
-            </button>
-            <button
-              type="button"
-              className="btn-sync-debug"
-              onClick={() => runSyncRequest('custo_nf')}
-              disabled={syncing || loading}
-            >
-              Custo NF
-            </button>
-            <button
-              type="button"
-              className="btn-sync-debug"
-              onClick={() => runSyncRequest('cost_map')}
-              disabled={syncing || loading}
-            >
-              Cost Map
-            </button>
-            <button
-              type="button"
-              className="btn-sync-debug"
-              onClick={() => runSyncRequest('bom_rollup')}
-              disabled={syncing || loading}
-            >
-              BOM Rollup
-            </button>
-          </div>
-        </div>
-
         <div className="sync-products">
           <label className="sync-products-label" htmlFor="sync-product-codes">
             Produtos para sincronizar (um por linha ou separados por virgula)

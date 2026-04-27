@@ -24,19 +24,19 @@ api.interceptors.response.use(
 export const productService = {
   // Buscar produtos por nome ou código
   searchProducts: (query, limit = 10) =>
-    api.get('/api/products/search', { params: { query, limit } }),
+    api.get('/products/search', { params: { query, limit } }),
 
   // Obter composição do produto
   getComposition: (productId) =>
-    api.get(`/api/products/${productId}/composition`),
+    api.get(`/products/${productId}/composition`),
 
   // Obter atividades do produto
   getActivities: (productId) =>
-    api.get(`/api/products/${productId}/activities`),
+    api.get(`/products/${productId}/activities`),
 
   // Obter resumo do produto
   getSummary: (productId) =>
-    api.get(`/api/products/${productId}/summary`),
+    api.get(`/products/${productId}/summary`),
 };
 
 /**
@@ -45,15 +45,15 @@ export const productService = {
 export const queryService = {
   // Executar query SQL customizada
   executeQuery: (queryName, params) =>
-    api.post('/api/queries/execute', { query_name: queryName, params }),
+    api.post('/queries/execute', { query_name: queryName, params }),
 
   // Obter datas de fechamento disponíveis
   getAvailableFechamentos: () =>
-    api.get('/api/queries/custo-contabil/fechamentos'),
+    api.get('/queries/custo-contabil/fechamentos'),
 
   // Health check
   healthCheck: () =>
-    api.get('/api/queries/health'),
+    api.get('/queries/health'),
 };
 
 /**
@@ -62,7 +62,7 @@ export const queryService = {
 export const syncService = {
   // Executar sincronização manual
   runSync: (dataFechamento, dataInicioNf, productCodes, datasets) =>
-    api.post('/api/sync/run', null, {
+    api.post('/sync/run', null, {
       params: {
         data_fechamento: dataFechamento,
         data_inicio_nf: dataInicioNf,
@@ -73,15 +73,15 @@ export const syncService = {
 
   // Obter histórico de sincronizações
   getSyncRuns: (limit = 20) =>
-    api.get('/api/sync/runs', { params: { limit } }),
+    api.get('/sync/runs', { params: { limit } }),
 
   // Obter status de produtos
   getProductsStatus: (limit = 200) =>
-    api.get('/api/sync/products-status', { params: { limit } }),
+    api.get('/sync/products-status', { params: { limit } }),
 
   // Health check do scheduler
   getHealth: () =>
-    api.get('/api/sync/health'),
+    api.get('/sync/health'),
 };
 
 /**
@@ -90,7 +90,7 @@ export const syncService = {
 export const costMapService = {
   // Gerar mapa de custos completo
   generateCostMap: (produtoCodigo, dataInicio, dataFim, filialCodigo) =>
-    api.post('/api/cost-map/generate', {
+    api.post('/cost-map/generate', {
       produto_codigo: produtoCodigo,
       data_inicio: dataInicio,
       data_fim: dataFim,
@@ -99,11 +99,11 @@ export const costMapService = {
 
   // Obter estrutura BOM em formato hierárquico
   getStructure: (produtoCodigo) =>
-    api.get(`/api/cost-map/estrutura/${encodeURIComponent(produtoCodigo)}`),
+    api.get(`/cost-map/estrutura/${encodeURIComponent(produtoCodigo)}`),
 
   // Health check
   healthCheck: () =>
-    api.get('/api/cost-map/health'),
+    api.get('/cost-map/health'),
 };
 
 /**
@@ -121,19 +121,27 @@ export const healthService = {
 export const settingsService = {
   // Buscar configuracao atual de alertas
   getAlertSettings: () =>
-    api.get('/api/settings/alerts'),
+    api.get('/settings/alerts'),
 
   // Atualizar configuracao de alertas
   updateAlertSettings: (payload) =>
-    api.put('/api/settings/alerts', payload),
+    api.put('/settings/alerts', payload),
 
   // Preview de itens com variacao de custo para alertas
   getAlertPreview: () =>
-    api.get('/api/settings/alerts/preview'),
+    api.get('/settings/alerts/preview'),
 
   // Disparar envio de e-mail de teste (placeholder)
   sendTestEmail: () =>
-    api.post('/api/settings/alerts/test-email'),
+    api.post('/settings/alerts/test-email'),
+
+  // Buscar alertas por produto
+  getProductAlerts: (productCode) =>
+    api.get(`/settings/alerts/product/${encodeURIComponent(productCode)}`),
+
+  // Disparar alertas por produto
+  dispatchProductAlerts: (productCode) =>
+    api.post(`/settings/alerts/product/${encodeURIComponent(productCode)}/dispatch`),
 };
 
 export default api;

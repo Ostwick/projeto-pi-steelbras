@@ -66,7 +66,7 @@ app = FastAPI(
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -92,6 +92,12 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Verificar saúde da API"""
+    return {"status": "healthy"}
+
+
+@app.get("/api/health")
+async def health_check_api():
+    """Alias para health check usado pelo frontend"""
     return {"status": "healthy"}
 
 

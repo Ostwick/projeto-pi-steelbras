@@ -71,6 +71,153 @@
   color: #111 !important;
 }
 
+.alert-panel {
+  background: #f9f9f9;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.alert-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.alert-panel-header h2 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  color: #222;
+}
+
+.alert-panel-header p {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.alert-send-button {
+  background: #1c1c1c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.alert-send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.alert-message {
+  background: #e7f5ff;
+  color: #0b5394;
+  border: 1px solid #b6daff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.alert-error {
+  background: #fde2e2;
+  color: #a61b1b;
+  border: 1px solid #f5b5b5;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.alert-loading,
+.alert-empty {
+  font-size: 13px;
+  color: #666;
+}
+
+.alert-list {
+  display: grid;
+  gap: 12px;
+}
+
+.alert-item {
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.alert-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.alert-badge {
+  background: #ffe8cc;
+  color: #8a4b0f;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.alert-badge.alta {
+  background: #ffd1d1;
+  color: #a61b1b;
+}
+
+.alert-badge.media {
+  background: #ffe8cc;
+  color: #8a4b0f;
+}
+
+.alert-badge.baixa {
+  background: #e2f0ff;
+  color: #1359a5;
+}
+
+.alert-status {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+.alert-status.pending {
+  color: #a45b00;
+}
+
+.alert-status.sent {
+  color: #1a7f37;
+}
+
+.alert-item-body strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #222;
+}
+
+.alert-item-body p {
+  margin: 0 0 8px 0;
+  color: #444;
+  font-size: 13px;
+}
+
+.alert-metrics {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #555;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 768px) {
   .analysis-page {
     padding: 16px;
@@ -82,5 +229,10 @@
 
   .info-card {
     grid-template-columns: 1fr;
+  }
+
+  .alert-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
