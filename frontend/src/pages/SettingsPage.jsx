@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { AlertCircle, CheckCircle, Loader, Mail, Plus, Trash2 } from 'lucide-react';
 import {
   healthService,
   queryService,
@@ -11,13 +11,54 @@ import './SettingsPage.css';
 export const SettingsPage = () => {
   const [apiStatus, setApiStatus] = useState({});
   const [loading, setLoading] = useState(true);
+  const [loadingSettings] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
   const [error, setError] = useState(null);
+  const [formMessage, setFormMessage] = useState(null);
+  const [newRecipient, setNewRecipient] = useState('');
+
+  const [alertSettings, setAlertSettings] = useState({
+    smtp: {
+      server: '',
+      port: 465,
+      user: '',
+      password: '',
+      has_password: false,
+    },
+    recipients: [],
+    thresholds: {
+      invoice_increase_pct: 5,
+      avg_cost_increase_pct: 3,
+      avg_cost_vs_last_invoice_pct: 10,
+    },
+    split_finished_goods: true,
+  });
+
+  const [alertPreview] = useState({
+    has_new_invoice: false,
+    items: [],
+    message:
+      'IDEIA: integrar preview com /api/settings/alerts/preview e exibir detalhes por regra.',
+  });
 
   useEffect(() => {
     checkApiHealth();
+    // IDEIA(front-alertas-carregamento): carregar configuracoes reais no mount.
+    // Sugestao: usar /api/settings/alerts para preencher smtp/recipients/thresholds
+    // e manter fallback local somente se a API estiver indisponivel.
+    // IDEIA(front-alertas-preview): carregar preview no mount e apos salvar configuracao.
+    // Sugestao: usar /api/settings/alerts/preview e exibir rule_hits em formato resumido.
+
     const interval = setInterval(checkApiHealth, 30000); // Verificar a cada 30s
     return () => clearInterval(interval);
   }, []);
+
+  const normalizeStatus = (value) => {
+    if (value === 'ok' || value === 'healthy') return 'ok';
+    if (value === 'offline') return 'offline';
+    return 'unknown';
+  };
 
   const checkApiHealth = async () => {
     try {
@@ -29,16 +70,99 @@ export const SettingsPage = () => {
       ]);
 
       setApiStatus({
-        api: healthRes.data?.status || 'unknown',
-        queries: queryRes.data?.status || 'unknown',
-        sync: syncRes.data?.status,
-        costMap: costMapRes.data?.status || 'unknown',
+        api: normalizeStatus(healthRes.data?.status),
+        queries: normalizeStatus(queryRes.data?.status),
+        sync: normalizeStatus(syncRes.data?.status),
+        costMap: normalizeStatus(costMapRes.data?.status),
       });
       setError(null);
     } catch (err) {
       setError('Erro ao verificar status da API');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSmtpFieldChange = (field, value) => {
+    setAlertSettings((prev) => ({
+      ...prev,
+      smtp: {
+        ...prev.smtp,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleThresholdChange = (field, value) => {
+    const numeric = Number(value);
+    setAlertSettings((prev) => ({
+      ...prev,
+      thresholds: {
+        ...prev.thresholds,
+        [field]: Number.isNaN(numeric) ? 0 : numeric,
+      },
+    }));
+  };
+
+  const addRecipient = () => {
+    const email = newRecipient.trim().toLowerCase();
+    if (!email || !email.includes('@')) return;
+
+    const alreadyExists = alertSettings.recipients.some((item) => item.email === email);
+    if (alreadyExists) {
+      setNewRecipient('');
+      return;
+    }
+
+    setAlertSettings((prev) => ({
+      ...prev,
+      recipients: [...prev.recipients, { email }],
+    }));
+    setNewRecipient('');
+  };
+
+  const removeRecipient = (emailToRemove) => {
+    setAlertSettings((prev) => ({
+      ...prev,
+      recipients: prev.recipients.filter((item) => item.email !== emailToRemove),
+    }));
+  };
+
+  const saveAlertSettings = async () => {
+    setSavingSettings(true);
+    setFormMessage(null);
+
+    try {
+      // IDEIA(front-alertas-save): integrar PUT /api/settings/alerts com validacao completa.
+      // 1) validar formato de e-mails e ranges de percentual antes do submit
+      // 2) montar payload no contrato do backend
+      // 3) salvar e recarregar configuracao + preview em caso de sucesso
+      // 4) mapear erros 4xx/5xx em mensagens amigaveis para o usuario
+      setFormMessage({
+        type: 'info',
+        text: 'IDEIA: implementar envio real do formulario para o backend.',
+      });
+    } catch (err) {
+      setFormMessage({ type: 'error', text: 'Erro ao salvar configuração.' });
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const sendTestEmail = async () => {
+    setSendingTestEmail(true);
+    setFormMessage(null);
+    try {
+      // IDEIA(front-alertas-test-email): integrar POST /api/settings/alerts/test-email.
+      // Sugestao: mostrar no feedback success_count/fail_count e destinatarios com erro.
+      setFormMessage({
+        type: 'info',
+        text: 'IDEIA: implementar disparo real de e-mail de teste via backend.',
+      });
+    } catch (err) {
+      setFormMessage({ type: 'error', text: 'Falha ao solicitar teste de e-mail.' });
+    } finally {
+      setSendingTestEmail(false);
     }
   };
 
@@ -85,11 +209,233 @@ export const SettingsPage = () => {
             <div className="services-list">
               <ServiceStatus name="API Principal" status={apiStatus.api} />
               <ServiceStatus name="Serviço de Queries" status={apiStatus.queries} />
-              <ServiceStatus
-                name="Serviço de Sincronização"
-                status={apiStatus.sync ? 'ok' : 'unknown'}
-              />
+              <ServiceStatus name="Serviço de Sincronização" status={apiStatus.sync} />
               <ServiceStatus name="Mapa de Custos" status={apiStatus.costMap} />
+            </div>
+          )}
+        </section>
+
+        {/* Seção de Alertas por E-mail */}
+        <section className="settings-section settings-section-wide">
+          <h2>📧 Alertas por E-mail (SMTP)</h2>
+          <p className="section-description">
+            Configure destinatários e percentuais para avisos automáticos
+          </p>
+
+          {loadingSettings ? (
+            <div className="loading-status">
+              <Loader size={24} className="animate-spin" />
+              <span>Carregando configuração de alertas...</span>
+            </div>
+          ) : (
+            <div className="alerts-config">
+              <div className="settings-note">
+                IDEIA: concluir integração de persistência, preview por regras e teste SMTP.
+              </div>
+
+              <div className="form-grid">
+                <label className="field-group">
+                  <span>Servidor SMTP</span>
+                  <input
+                    type="text"
+                    value={alertSettings.smtp.server}
+                    onChange={(e) => handleSmtpFieldChange('server', e.target.value)}
+                    placeholder="smtp.seudominio.com"
+                  />
+                </label>
+
+                <label className="field-group">
+                  <span>Porta SMTP</span>
+                  <input
+                    type="number"
+                    value={alertSettings.smtp.port}
+                    onChange={(e) => handleSmtpFieldChange('port', e.target.value)}
+                    placeholder="465"
+                  />
+                </label>
+
+                <label className="field-group">
+                  <span>Usuário SMTP</span>
+                  <input
+                    type="text"
+                    value={alertSettings.smtp.user}
+                    onChange={(e) => handleSmtpFieldChange('user', e.target.value)}
+                    placeholder="contato@empresa.com"
+                  />
+                </label>
+
+                <label className="field-group">
+                  <span>Senha SMTP</span>
+                  <input
+                    type="password"
+                    value={alertSettings.smtp.password}
+                    onChange={(e) => handleSmtpFieldChange('password', e.target.value)}
+                    placeholder={
+                      alertSettings.smtp.has_password
+                        ? 'Senha já cadastrada (digite para alterar)'
+                        : 'Digite a senha SMTP'
+                    }
+                  />
+                </label>
+              </div>
+
+              <div className="threshold-grid">
+                <label className="field-group">
+                  <span>Alerta de nota fiscal maior que (%)</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={alertSettings.thresholds.invoice_increase_pct}
+                    onChange={(e) =>
+                      handleThresholdChange('invoice_increase_pct', e.target.value)
+                    }
+                  />
+                </label>
+
+                <label className="field-group">
+                  <span>Alerta de aumento de custo médio (%)</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={alertSettings.thresholds.avg_cost_increase_pct}
+                    onChange={(e) =>
+                      handleThresholdChange('avg_cost_increase_pct', e.target.value)
+                    }
+                  />
+                </label>
+
+                <label className="field-group">
+                  <span>Listar itens com diferença > (%)</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={alertSettings.thresholds.avg_cost_vs_last_invoice_pct}
+                    onChange={(e) =>
+                      handleThresholdChange('avg_cost_vs_last_invoice_pct', e.target.value)
+                    }
+                  />
+                </label>
+              </div>
+
+              <div className="toggle-row">
+                <label className="checkbox-field">
+                  <input
+                    type="checkbox"
+                    checked={alertSettings.split_finished_goods}
+                    onChange={(e) =>
+                      setAlertSettings((prev) => ({
+                        ...prev,
+                        split_finished_goods: e.target.checked,
+                      }))
+                    }
+                  />
+                  <span>Separar itens acabados dos demais</span>
+                </label>
+                <small>
+                  IDEIA: alinhar com backend o critério oficial de item acabado para manter consistência.
+                </small>
+              </div>
+
+              <div className="recipients-section">
+                <h3>
+                  <Mail size={14} /> Destinatários dos alertas
+                </h3>
+                <div className="recipient-input-row">
+                  <input
+                    type="email"
+                    value={newRecipient}
+                    onChange={(e) => setNewRecipient(e.target.value)}
+                    placeholder="email@empresa.com"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addRecipient();
+                      }
+                    }}
+                  />
+                  <button type="button" onClick={addRecipient}>
+                    <Plus size={14} /> Adicionar
+                  </button>
+                </div>
+
+                <div className="recipient-list">
+                  {alertSettings.recipients.length === 0 ? (
+                    <p className="empty-hint">Nenhum destinatário cadastrado.</p>
+                  ) : (
+                    alertSettings.recipients.map((item) => (
+                      <div key={item.email} className="recipient-item">
+                        <span>{item.email}</span>
+                        <button
+                          type="button"
+                          className="danger"
+                          onClick={() => removeRecipient(item.email)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="action-row">
+                <button
+                  type="button"
+                  className="primary"
+                  onClick={saveAlertSettings}
+                  disabled={savingSettings}
+                >
+                  {savingSettings ? 'Salvando...' : 'Salvar Configuração'}
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={sendTestEmail}
+                  disabled={sendingTestEmail}
+                >
+                  {sendingTestEmail ? 'Enviando...' : 'Enviar E-mail de Teste (IDEIA)'}
+                </button>
+              </div>
+
+              {formMessage && (
+                <div className={`form-message ${formMessage.type}`}>{formMessage.text}</div>
+              )}
+
+              <div className="preview-section">
+                <h3>Itens com variação acima do limite</h3>
+                {!alertPreview.has_new_invoice ? (
+                  <p className="empty-hint">
+                    {alertPreview.message || 'Sem nota fiscal nova. Lista não exibida.'}
+                  </p>
+                ) : alertPreview.items?.length ? (
+                  <div className="preview-table-wrapper">
+                    <table className="preview-table">
+                      <thead>
+                        <tr>
+                          <th>Código</th>
+                          <th>Descrição</th>
+                          <th>Custo Última NF</th>
+                          <th>Custo Médio</th>
+                          <th>Variação (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {alertPreview.items.map((item) => (
+                          <tr key={item.product_code}>
+                            <td>{item.product_code}</td>
+                            <td>{item.product_name}</td>
+                            <td>{Number(item.last_invoice_cost || 0).toFixed(2)}</td>
+                            <td>{Number(item.average_cost || 0).toFixed(2)}</td>
+                            <td>{Number(item.variance_pct || 0).toFixed(2)}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="empty-hint">Não há itens acima do limite configurado.</p>
+                )}
+              </div>
             </div>
           )}
         </section>

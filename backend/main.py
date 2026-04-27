@@ -6,7 +6,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from app.config import settings
 from app.database import PostgresSessionLocal, SqlServerSessionLocal
-from app.routes import products, queries, sync, cost_map
+from app.routes import products, queries, sync, cost_map, settings as app_settings
 from app.services.sync_service import run_sync_job
 
 scheduler = BackgroundScheduler(timezone="UTC")
@@ -76,6 +76,7 @@ app.include_router(products.router)
 app.include_router(queries.router)
 app.include_router(sync.router)
 app.include_router(cost_map.router)
+app.include_router(app_settings.router)
 
 
 @app.get("/")

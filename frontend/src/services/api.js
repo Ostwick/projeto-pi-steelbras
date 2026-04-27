@@ -115,5 +115,26 @@ export const healthService = {
     api.get('/health'),
 };
 
+/**
+ * Serviço de Configurações de Alertas
+ */
+export const settingsService = {
+  // Buscar configuracao atual de alertas
+  getAlertSettings: () =>
+    api.get('/api/settings/alerts'),
+
+  // Atualizar configuracao de alertas
+  updateAlertSettings: (payload) =>
+    api.put('/api/settings/alerts', payload),
+
+  // Preview de itens com variacao de custo para alertas
+  getAlertPreview: () =>
+    api.get('/api/settings/alerts/preview'),
+
+  // Disparar envio de e-mail de teste (placeholder)
+  sendTestEmail: () =>
+    api.post('/api/settings/alerts/test-email'),
+};
+
 export default api;
 

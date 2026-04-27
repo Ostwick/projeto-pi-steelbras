@@ -220,6 +220,245 @@
   color: #60a5fa;
 }
 
+.settings-section-wide {
+  grid-column: 1 / -1;
+}
+
+.alerts-config {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-note {
+  padding: 10px 12px;
+  border: 1px dashed #475569;
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.form-grid,
+.threshold-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.field-group input {
+  height: 34px;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.65);
+  color: #e2e8f0;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.field-group input:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toggle-row small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.recipients-section {
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(2, 6, 23, 0.3);
+}
+
+.recipients-section h3,
+.preview-section h3 {
+  margin: 0 0 10px 0;
+  color: #93c5fd;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recipient-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recipient-input-row input {
+  flex: 1;
+  height: 34px;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.65);
+  color: #e2e8f0;
+  padding: 0 10px;
+}
+
+.recipient-input-row button,
+.action-row button,
+.recipient-item button {
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.recipient-input-row button {
+  padding: 0 12px;
+}
+
+.recipient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipient-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid #334155;
+  border-radius: 4px;
+  padding: 8px 10px;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+.recipient-item button {
+  padding: 6px;
+}
+
+.recipient-item button.danger {
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action-row button {
+  padding: 8px 14px;
+}
+
+.action-row button.primary {
+  background: #1d4ed8;
+  border-color: #1e40af;
+}
+
+.action-row button.secondary {
+  background: #0f766e;
+  border-color: #0f766e;
+}
+
+.action-row button:disabled,
+.recipient-input-row button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.form-message {
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.form-message.success {
+  background: rgba(22, 163, 74, 0.2);
+  border: 1px solid #166534;
+  color: #86efac;
+}
+
+.form-message.error {
+  background: rgba(220, 38, 38, 0.18);
+  border: 1px solid #7f1d1d;
+  color: #fecaca;
+}
+
+.form-message.info {
+  background: rgba(37, 99, 235, 0.2);
+  border: 1px solid #1e3a8a;
+  color: #bfdbfe;
+}
+
+.preview-section {
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(2, 6, 23, 0.3);
+}
+
+.preview-table-wrapper {
+  overflow-x: auto;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.preview-table th,
+.preview-table td {
+  border-bottom: 1px solid #334155;
+  padding: 8px;
+  text-align: left;
+  color: #e2e8f0;
+}
+
+.preview-table th {
+  color: #93c5fd;
+  font-weight: 600;
+}
+
+.empty-hint {
+  color: #94a3b8;
+  font-size: 12px;
+  margin: 0;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
@@ -253,5 +492,14 @@
 
   .settings-section {
     padding: 16px;
+  }
+
+  .recipient-input-row {
+    flex-direction: column;
+  }
+
+  .recipient-input-row button {
+    justify-content: center;
+    height: 34px;
   }
 }

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 
@@ -63,3 +63,70 @@ class ProductSearchResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class AlertRecipient(BaseModel):
+    email: str
+    name: Optional[str] = None
+
+
+class AlertThresholds(BaseModel):
+    invoice_increase_pct: float = 5.0
+    avg_cost_increase_pct: float = 3.0
+    avg_cost_vs_last_invoice_pct: float = 10.0
+
+
+class SMTPConfig(BaseModel):
+    server: Optional[str] = None
+    port: int = 465
+    user: Optional[str] = None
+    has_password: bool = False
+
+
+class SMTPConfigUpdate(BaseModel):
+    server: Optional[str] = None
+    port: Optional[int] = None
+    user: Optional[str] = None
+    password: Optional[str] = None
+
+
+class AlertSettingsResponse(BaseModel):
+    smtp: SMTPConfig
+    recipients: List[AlertRecipient] = Field(default_factory=list)
+    thresholds: dict = Field(default_factory=dict)
+    split_finished_goods: bool = True
+
+
+class AlertSettingsUpdate(BaseModel):
+    smtp: Optional[SMTPConfigUpdate] = None
+    recipients: Optional[List[AlertRecipient]] = None
+    thresholds: Optional[AlertThresholds] = None
+    split_finished_goods: Optional[bool] = None
+
+
+class CostVarianceItem(BaseModel):
+    product_code: str
+    product_name: str
+    last_invoice_cost: float
+    average_cost: float
+    variance_pct: float
+    is_finished_good: bool = False
+
+
+class RuleHitItem(BaseModel):
+    product_code: str
+    product_name: str
+    variation_pct: float
+    current_value: float
+    reference_value: float
+    latest_invoice_number: Optional[str] = None
+    previous_invoice_number: Optional[str] = None
+    is_finished_good: bool = False
+
+
+class AlertPreviewResponse(BaseModel):
+    has_new_invoice: bool
+    items: List[CostVarianceItem]
+    message: Optional[str] = None
+    rule_hits: dict = Field(default_factory=dict)
+    generated_at: Optional[datetime] = None
