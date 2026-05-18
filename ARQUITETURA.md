@@ -67,15 +67,43 @@ Projeto PI/
 ## 🎯 Fluxo de Dados
 
 ```
-┌─────────────────┐       ┌──────────────────┐       ┌──────────────┐
-│  Frontend React │──────▶│ Backend FastAPI  │──────▶│  SQL Server  │
-│  (localhost:5173) API   │ (localhost:8000) │ Queries│ Database     │
-│                 │◀──────│                  │◀──────│              │
-│ - Busca         │ JSON  │ - Rotas          │ Data  │ - Produtos   │
-│ - Composição    │       │ - Schemas        │       │ - Componentes│
-│ - Atividades    │       │ - Config BD      │       │ - Custos     │
-│                 │       │ - Queries SQL    │       │ - Atividades │
-└─────────────────┘       └──────────────────┘       └──────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  Frontend (React + Vite)                                               │
+│  ├── ProductSearch ──────────────────┐                                 │
+│  ├── CompositionTree                 │                                 │
+│  ├── CostMapTree                     │  Context API                    │
+│  ├── ActivitiesList                  │  (ApiContext,                   │
+│  ├── SettingsPage                    │   ProductContext)               │
+│  └── SyncPage ──────────────────────┘                                  │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                              │
+                              │ HTTP REST API (JSON)
+                              ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  Backend (FastAPI)                                                     │
+│  ├── /api/products/*          ◄── ProductSearch                        │
+│  ├── /api/cost-map/*          ◄── CostMapTree + CostMapPage           │
+│  ├── /api/queries/*           ◄── Advanced Queries                     │
+│  ├── /api/settings/*          ◄── SettingsPage                        │
+│  └── /api/sync/*              ◄── SyncPage + sync_service             │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                              │
+                              │ SQL Queries via pyodbc
+                              ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│  SQL Server Database                                                   │
+│  ├── Produtos                                                          │
+│  ├── Componentes                                                       │
+│  ├── Custos (histórico)                                                │
+│  ├── Atividades/Processos                                              │
+│  └── Sincronização de dados                                            │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔑 Componentes Principais
@@ -87,38 +115,60 @@ Projeto PI/
 - Executar queries SQL contra SQL Server
 - Retornar dados em formato JSON
 - Validar e transformar dados usando Pydantic
+- Gerenciar sincronização de dados
+- Fornecer configurações da aplicação
 
 **Tecnologias:**
-- `Fastapi` - Framework web rápido e moderno
+- `FastAPI` - Framework web rápido e moderno
 - `SQLAlchemy` - ORM para SQL
 - `pyodbc` - Driver para SQL Server
 - `Pydantic` - Validação de dados
 
-**Como funciona:**
-1. Frontend envia requisição GET/POST
-2. Route em `routes/products.py` recebe a requisição
-3. Schema valida os dados
-4. Database executa query SQL
-5. Resultado é transformado e retornado como JSON
+**Routes principais:**
+1. **products.py** - Busca, composição e resumo de produtos
+2. **cost_map.py** - Visualização hierárquica de custos
+3. **queries.py** - Execução de queries SQL customizadas
+4. **settings.py** - Gerenciamento de configurações
+5. **sync.py** - Sincronização de dados com fontes externas
 
-### Frontend (React)
+**Services:**
+- **sync_service.py** - Lógica de sincronização de dados
+
+### Frontend (React + TypeScript/JavaScript)
 
 **Responsabilidades:**
 - Interface visual para usuário
-- Eingeber dados de busca
-- Exibir composição e custos
-- Listar atividades
+- Entrada de dados de busca e filtros
+- Exibir composição, custos e atividades
+- Gerenciar estado da aplicação via Context API
+- Sincronizar com backend via API REST
 
 **Tecnologias:**
 - `React` - Biblioteca UI
 - `Vite` - Build tool rápido
 - `Axios` - Cliente HTTP
+- `TypeScript/JavaScript` - Linguagens
 - `CSS Vanilla` - Estilos
 
-**Componentes:**
-1. **ProductSearch** - Permite buscar produtos
-2. **CompositionTree** - Mostra árvore de componentes com custos
-3. **ActivitiesList** - Lista atividades/processos
+**Componentes principais:**
+1. **ProductSearch** - Busca de produtos
+2. **CompositionTree** - Árvore de composição com custos
+3. **CostMapTree** - Visualização hierárquica de mapa de custos (TypeScript)
+4. **ActivitiesList** - Lista de atividades/processos
+5. **MainLayout** - Layout principal compartilhado
+
+**Pages (Páginas):**
+1. **AnalysisPage** - Página principal de análise
+2. **CostMapPage** - Visualização completa do mapa de custos
+3. **SettingsPage** - Configurações da aplicação
+4. **SyncPage** - Página de sincronização
+
+**Contexts:**
+- **ApiContext** - Gerencia conexão com API
+- **ProductContext** - Gerencia estado de produtos
+
+**Hooks:**
+- **useCostMap** - Hook customizado para dados de mapa de custos
 
 ## 📋 Schemas (Modelos de Dados)
 
@@ -151,6 +201,19 @@ Projeto PI/
       ]
     }
   ]
+}
+
+# Mapa de Custos
+{
+  product_id: int,
+  structure: {
+    id: int,
+    name: str,
+    type: 'product' | 'component' | 'activity',
+    cost: float,
+    quantity: float,
+    children: [...]
+  }
 }
 
 # Atividade
@@ -194,11 +257,30 @@ Projeto PI/
 │             │ products/{id}│                          │
 │             │ /summary     │                          │
 │                                                         │
+│ COST MAP ENDPOINTS                                      │
+│ GET         │ /api/        │ Árvore hierárquica de    │
+│             │ cost-map/tree│ custos                   │
+│             │                                          │
+│ GET         │ /api/        │ Exportar mapa de custos  │
+│             │ cost-map/    │ em JSON ou CSV           │
+│             │ export       │                          │
+│                                                         │
+│ SETTINGS ENDPOINTS                                      │
+│ GET         │ /api/settings│ Obter configurações      │
+│ POST        │ /api/settings│ Atualizar configurações  │
+│                                                         │
+│ SYNC ENDPOINTS                                          │
+│ POST        │ /api/sync/   │ Executar sincronização   │
+│             │ execute      │ de dados                 │
+│             │                                          │
+│ GET         │ /api/sync/   │ Status da sincronização  │
+│             │ status       │                          │
+│                                                         │
 │ QUERIES ENDPOINTS                                       │
-│ POST        │ /api/        │ Executar query           │
+│ POST        │ /api/        │ Executar query SQL       │
 │             │ queries/     │ customizada              │
 │             │ execute      │                          │
-│             │                                          │
+│                                                         │
 │ GET         │ /api/        │ Health check             │
 │             │ queries/     │                          │
 │             │ health       │                          │
@@ -296,24 +378,15 @@ npm run dev
 
 ## 📚 Onde Cada Coisa Está
 
-| O que preciso?         | Arquivo                        |
-|------------------------|--------------------------------|
-| Adicionar queries SQL  | `backend/app/routes/products.py` |
-| Configurar BD          | `backend/app/config.py` + `backend/.env` |
-| Customizar UI          | `frontend/src/components/` |
-| Entender integração    | `docs/INTEGRACAO_SQL.md` |
-| Scripts SQL exemplo    | `docs/EXEMPLO_SQL_SERVER.md` |
-| Instalar tudo          | `docs/SETUP.md` |
-| Começar rápido         | `COMECE_AQUI.md` |
-
-## ✅ Próximos Passos
-
-1. **Completar `backend/.env`** com suas credenciais SQL Server
-2. **Adaptar `/routes/products.py`** com suas queries
-3. **Rodar e testar** em `http://localhost:8000/docs`
-4. **Customizar frontend** conforme necessário
-5. **Adicionar dashboard** e análises no futuro
-
----
-
-**Status:** ✅ Pronto para desenvolvimento!
+| O que preciso?              | Arquivo                          |
+|-----------------------------|----------------------------------|
+| Adicionar queries SQL       | `backend/app/routes/products.py` |
+| Implementar mapa de custos  | `backend/app/routes/cost_map.py` |
+| Gerenciar sincronização     | `backend/app/services/sync_service.py` |
+| Configurar BD               | `backend/app/config.py` + `backend/.env` |
+| Entender componentes UI     | `frontend/src/components/`       |
+| Adicionar novas páginas     | `frontend/src/pages/`            |
+| Gerenciar estado global     | `frontend/src/contexts/`         |
+| Custom hooks                | `frontend/src/hooks/`            |
+| Queries SQL reutilizáveis   | `queries/BOM.sql`                |
+| Layout compartilhado        | `frontend/src/layouts/`          |

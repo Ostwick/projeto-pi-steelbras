@@ -7,44 +7,71 @@ Uma aplicação web para análise de custos de produtos, permitindo visualizar a
 - **Busca de Produtos**: Busque produtos por nome ou código
 - **Árvore de Composição**: Visualize a composição hierárquica dos produtos
 - **Análise de Custos**: Veja custo médio e histórico de custos para cada componente
+- **Mapa de Custos**: Visualização hierárquica de custos por componentes e atividades
 - **Lista de Atividades**: Consulte atividades/processos e seus custos
+- **Sincronização de Dados**: Sincronize dados com fontes externas
+- **Configurações**: Gerencie as configurações da aplicação
 - **Dashboard**: (Futuro) Análise de dados e insights sobre aumentos de preço e oportunidades de melhoria
 
 ## 🏗️ Arquitetura
 
 ```
 Projeto PI/
-├── backend/              # API Python FastAPI
+├── backend/                  # API Python FastAPI
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── config.py          # Configurações da aplicação
-│   │   ├── database.py        # Conexão com banco de dados
-│   │   ├── schemas.py         # Modelos de dados (Pydantic)
+│   │   ├── config.py         # Configurações da aplicação
+│   │   ├── database.py       # Conexão com banco de dados
+│   │   ├── schemas.py        # Modelos de dados (Pydantic)
 │   │   ├── routes/
-│   │   │   ├── products.py    # Endpoints de produtos
-│   │   │   └── queries.py     # Endpoints para consultas SQL
+│   │   │   ├── products.py   # Endpoints de produtos
+│   │   │   ├── cost_map.py   # Endpoints de mapa de custos
+│   │   │   ├── queries.py    # Endpoints para consultas SQL
+│   │   │   ├── settings.py   # Endpoints de configurações
+│   │   │   └── sync.py       # Endpoints de sincronização
+│   │   └── services/
+│   │       └── sync_service.py   # Serviço de sincronização
 │   ├── main.py               # Aplicação FastAPI
 │   ├── requirements.txt
 │   └── .env.example
 │
-├── frontend/            # Interface React
+├── frontend/                 # Interface React + Vite
 │   ├── src/
 │   │   ├── components/       # Componentes React
-│   │   │   ├── ProductSearch.jsx
-│   │   │   ├── CompositionTree.jsx
-│   │   │   └── ActivitiesList.jsx
-│   │   ├── pages/           # Páginas
-│   │   │   └── AnalysisPage.jsx
-│   │   ├── services/        # Serviços (API)
+│   │   │   ├── ProductSearch.jsx/css
+│   │   │   ├── CompositionTree.jsx/css
+│   │   │   ├── CostMapTree.tsx/css
+│   │   │   └── ActivitiesList.jsx/css
+│   │   ├── contexts/         # Context API
+│   │   │   ├── ApiContext.jsx
+│   │   │   ├── ProductContext.jsx
+│   │   │   └── index.js
+│   │   ├── hooks/            # Custom Hooks
+│   │   │   └── useCostMap.ts
+│   │   ├── layouts/          # Layouts da aplicação
+│   │   │   ├── MainLayout.jsx/css
+│   │   │   └── index.js
+│   │   ├── pages/            # Páginas
+│   │   │   ├── AnalysisPage.jsx/css
+│   │   │   ├── CostMapPage.tsx/css
+│   │   │   ├── SettingsPage.jsx/css
+│   │   │   └── SyncPage.jsx/css
+│   │   ├── services/         # Serviços (API)
 │   │   │   └── api.js
 │   │   ├── App.jsx
+│   │   ├── App.css
 │   │   └── main.jsx
 │   ├── index.html
 │   ├── vite.config.js
 │   ├── package.json
 │   └── .env.example
 │
-└── docs/               # Documentação
+├── queries/                  # Queries SQL
+│   └── BOM.sql
+│
+├── ARQUITETURA.md           # Documentação técnica detalhada
+├── README.md                # Este arquivo
+└── .gitignore
 ```
 
 ## 🚀 Quick Start
@@ -222,22 +249,6 @@ Edite os arquivos `.css` para personalizar a aparência.
 2. Importe-o em `frontend/src/pages/AnalysisPage.jsx`
 3. Adicione-o ao JSX da página
 
-## 📈 Próximos Passos - Dashboard e Análises
-
-Para adicionar o dashboard com análises de dados:
-
-1. **Crie uma nova página** em `frontend/src/pages/DashboardPage.jsx`
-2. **Implemente componentes de gráficos** usando bibliotecas como:
-   - [Chart.js](https://www.chartjs.org/) com `react-chartjs-2`
-   - [Apache ECharts](https://echarts.apache.org/)
-   - [Plotly.js](https://plotly.com/javascript/)
-
-3. **Crie endpoints de análise** no backend para:
-   - Análise de tendências de preço
-   - Identificação de oportunidades de melhoria
-   - Comparação de custo entre períodos
-   - Simulações de impacto
-
 Exemplo de endpoint para análise:
 ```python
 @router.get("/analytics/price-trends/{product_id}")
@@ -246,18 +257,3 @@ async def get_price_trends(product_id: int, db: Session = Depends(get_db)):
     # Implementar lógica de análise
     pass
 ```
-
-## 🤝 Contribuição
-
-1. Crie uma branch para sua feature: `git checkout -b feature/nova-feature`
-2. Commit suas mudanças: `git commit -am 'Add nova feature'`
-3. Push para a branch: `git push origin feature/nova-feature`
-4. Abra um Pull Request
-
-## 📝 Licença
-
-Projeto interno - Todos os direitos reservados
-
-## 💬 Suporte
-
-Para dúvidas ou problemas, consulte a documentação da API em `http://localhost:8000/docs`
