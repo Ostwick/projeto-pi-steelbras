@@ -1,14 +1,13 @@
 .product-search {
-  background: white;
+  background: rgba(15,23,42,0.6);
   padding: 24px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 24px;
 }
 
 .product-search h2 {
   margin-top: 0;
-  color: #333;
+  color: var(--text);
   font-size: 20px;
   margin-bottom: 16px;
 }
@@ -21,21 +20,23 @@
 .search-input {
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid #ddd;
+  border: 1px solid #334155;
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
+  background: rgba(10,14,22,0.4);
+  color: var(--text);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.08);
 }
 
 .search-button {
   padding: 12px 24px;
-  background-color: #007bff;
+  background-color: var(--primary-blue);
   color: white;
   border: none;
   border-radius: 4px;

@@ -6,16 +6,23 @@
 }
 
 .activities-list.loading,
+.activities-list {
+  background: rgba(15,23,42,0.6);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.activities-list.loading,
 .activities-list.empty {
   padding: 24px;
   text-align: center;
-  color: #666;
+  color: var(--muted);
 }
 
 .activities-header {
-  background: #f8f9fa;
+  background: rgba(22,33,62,0.9);
   padding: 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #334155;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -24,7 +31,7 @@
 
 .activities-header h4 {
   margin: 0;
-  color: #333;
+  color: var(--text);
   flex: 1;
 }
 
@@ -38,54 +45,51 @@
 .activities-total .label {
   font-size: 12px;
   font-weight: 600;
-  color: #666;
+  color: var(--muted);
   text-transform: uppercase;
 }
 
 .activities-total .value {
   font-size: 18px;
   font-weight: 700;
-  color: #28a745;
+  color: var(--primary-green);
 }
-
 .activities-table {
   overflow-x: auto;
 }
-
 .activities-table table {
   width: 100%;
   border-collapse: collapse;
 }
-
 .activities-table th {
-  background: #f8f9fa;
+  background: rgba(22,33,62,0.9);
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
   font-size: 12px;
-  color: #666;
-  border-bottom: 1px solid #eee;
+  color: var(--muted);
+  border-bottom: 1px solid #334155;
   text-transform: uppercase;
 }
 
 .activities-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
   font-size: 13px;
-  color: #333;
+  color: var(--text);
 }
 
 .activities-table tbody tr:hover {
-  background: #f9f9f9;
+  background: rgba(255,255,255,0.02);
 }
 
 .activities-table td.activity-name {
   font-weight: 600;
-  color: #007bff;
+  color: var(--primary-blue);
 }
 
 .activities-table td.description {
-  color: #999;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -96,19 +100,14 @@
 }
 
 .activities-table td.cost.highlight {
-  color: #28a745;
+  color: var(--primary-green);
   font-weight: 600;
 }
 
 .activities-table td.date {
-  color: #999;
+  color: var(--muted);
   font-size: 12px;
 }
-
-@media (max-width: 768px) {
-  .activities-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .activities-total {

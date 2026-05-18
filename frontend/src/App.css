@@ -10,7 +10,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+    background-color: #0f172a;
+    color: #ffffff;
 }
 
 #root {
@@ -19,5 +20,17 @@ body {
 
 .app {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #0f172a;
+}
+
+:root {
+  --primary-blue: #007aff;
+  --primary-green: #46b654;
+  --bg-dark: #0f172a;
+  --text: #ffffff;
+  --muted: rgba(255,255,255,0.85);
+}
+
+body, .app, #root {
+  color: var(--text);
 }
