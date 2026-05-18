@@ -5,13 +5,14 @@ import {
   queryService,
   syncService,
   costMapService,
+  settingsService,
 } from '../services/api';
 import './SettingsPage.css';
 
 export const SettingsPage = () => {
   const [apiStatus, setApiStatus] = useState({});
   const [loading, setLoading] = useState(true);
-  const [loadingSettings] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const [sendingTestEmail, setSendingTestEmail] = useState(false);
   const [error, setError] = useState(null);
@@ -35,20 +36,18 @@ export const SettingsPage = () => {
     split_finished_goods: true,
   });
 
-  const [alertPreview] = useState({
+  const [alertPreview, setAlertPreview] = useState({
     has_new_invoice: false,
     items: [],
-    message:
-      'IDEIA: integrar preview com /api/settings/alerts/preview e exibir detalhes por regra.',
+    message: '',
+    rule_hits: {},
+    generated_at: null,
   });
 
   useEffect(() => {
     checkApiHealth();
-    // IDEIA(front-alertas-carregamento): carregar configuracoes reais no mount.
-    // Sugestao: usar /api/settings/alerts para preencher smtp/recipients/thresholds
-    // e manter fallback local somente se a API estiver indisponivel.
-    // IDEIA(front-alertas-preview): carregar preview no mount e apos salvar configuracao.
-    // Sugestao: usar /api/settings/alerts/preview e exibir rule_hits em formato resumido.
+    loadAlertSettings();
+    loadAlertPreview();
 
     const interval = setInterval(checkApiHealth, 30000); // Verificar a cada 30s
     return () => clearInterval(interval);
@@ -58,6 +57,54 @@ export const SettingsPage = () => {
     if (value === 'ok' || value === 'healthy') return 'ok';
     if (value === 'offline') return 'offline';
     return 'unknown';
+  };
+
+  const isValidEmail = (value) => value && value.includes('@') && value.includes('.');
+
+  const loadAlertSettings = async () => {
+    setLoadingSettings(true);
+    try {
+      const response = await settingsService.getAlertSettings();
+      const data = response.data || {};
+      setAlertSettings({
+        smtp: {
+          server: data.smtp?.server || '',
+          port: data.smtp?.port || 465,
+          user: data.smtp?.user || '',
+          password: '',
+          has_password: Boolean(data.smtp?.has_password),
+        },
+        recipients: Array.isArray(data.recipients) ? data.recipients : [],
+        thresholds: {
+          invoice_increase_pct: Number(data.thresholds?.invoice_increase_pct ?? 5),
+          avg_cost_increase_pct: Number(data.thresholds?.avg_cost_increase_pct ?? 3),
+          avg_cost_vs_last_invoice_pct: Number(data.thresholds?.avg_cost_vs_last_invoice_pct ?? 10),
+        },
+        split_finished_goods: Boolean(data.split_finished_goods ?? true),
+      });
+    } catch (err) {
+      setFormMessage({
+        type: 'error',
+        text: 'Falha ao carregar configuração de alertas.',
+      });
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+
+  const loadAlertPreview = async () => {
+    try {
+      const response = await settingsService.getAlertPreview();
+      setAlertPreview(response.data || { has_new_invoice: false, items: [], message: '' });
+    } catch (err) {
+      setAlertPreview({
+        has_new_invoice: false,
+        items: [],
+        message: 'Falha ao carregar preview de alertas.',
+        rule_hits: {},
+        generated_at: null,
+      });
+    }
   };
 
   const checkApiHealth = async () => {
@@ -106,7 +153,7 @@ export const SettingsPage = () => {
 
   const addRecipient = () => {
     const email = newRecipient.trim().toLowerCase();
-    if (!email || !email.includes('@')) return;
+    if (!isValidEmail(email)) return;
 
     const alreadyExists = alertSettings.recipients.some((item) => item.email === email);
     if (alreadyExists) {
@@ -133,17 +180,77 @@ export const SettingsPage = () => {
     setFormMessage(null);
 
     try {
-      // IDEIA(front-alertas-save): integrar PUT /api/settings/alerts com validacao completa.
-      // 1) validar formato de e-mails e ranges de percentual antes do submit
-      // 2) montar payload no contrato do backend
-      // 3) salvar e recarregar configuracao + preview em caso de sucesso
-      // 4) mapear erros 4xx/5xx em mensagens amigaveis para o usuario
+      const invalidRecipients = alertSettings.recipients.filter(
+        (item) => !isValidEmail(item.email)
+      );
+      if (invalidRecipients.length > 0) {
+        setFormMessage({
+          type: 'error',
+          text: 'Há destinatários com e-mail inválido.',
+        });
+        return;
+      }
+
+      const thresholds = alertSettings.thresholds;
+      const thresholdValues = [
+        thresholds.invoice_increase_pct,
+        thresholds.avg_cost_increase_pct,
+        thresholds.avg_cost_vs_last_invoice_pct,
+      ];
+      const invalidThreshold = thresholdValues.some(
+        (value) => Number.isNaN(Number(value)) || Number(value) < 0 || Number(value) > 1000
+      );
+      if (invalidThreshold) {
+        setFormMessage({
+          type: 'error',
+          text: 'Os percentuais precisam ser números entre 0 e 1000.',
+        });
+        return;
+      }
+
+      const passwordValue = alertSettings.smtp.password.trim();
+      const payload = {
+        smtp: {
+          server: alertSettings.smtp.server || null,
+          port: Number(alertSettings.smtp.port || 465),
+          user: alertSettings.smtp.user || null,
+          password: passwordValue === '' ? null : passwordValue,
+        },
+        recipients: alertSettings.recipients,
+        thresholds: {
+          invoice_increase_pct: Number(thresholds.invoice_increase_pct),
+          avg_cost_increase_pct: Number(thresholds.avg_cost_increase_pct),
+          avg_cost_vs_last_invoice_pct: Number(thresholds.avg_cost_vs_last_invoice_pct),
+        },
+        split_finished_goods: alertSettings.split_finished_goods,
+      };
+
+      const response = await settingsService.updateAlertSettings(payload);
+      const data = response.data || {};
+      setAlertSettings({
+        smtp: {
+          server: data.smtp?.server || '',
+          port: data.smtp?.port || 465,
+          user: data.smtp?.user || '',
+          password: '',
+          has_password: Boolean(data.smtp?.has_password),
+        },
+        recipients: Array.isArray(data.recipients) ? data.recipients : [],
+        thresholds: {
+          invoice_increase_pct: Number(data.thresholds?.invoice_increase_pct ?? 5),
+          avg_cost_increase_pct: Number(data.thresholds?.avg_cost_increase_pct ?? 3),
+          avg_cost_vs_last_invoice_pct: Number(data.thresholds?.avg_cost_vs_last_invoice_pct ?? 10),
+        },
+        split_finished_goods: Boolean(data.split_finished_goods ?? true),
+      });
+      await loadAlertPreview();
       setFormMessage({
-        type: 'info',
-        text: 'IDEIA: implementar envio real do formulario para o backend.',
+        type: 'success',
+        text: 'Configuração salva com sucesso.',
       });
     } catch (err) {
-      setFormMessage({ type: 'error', text: 'Erro ao salvar configuração.' });
+      const errorMessage = err.response?.data?.detail || 'Erro ao salvar configuração.';
+      setFormMessage({ type: 'error', text: errorMessage });
     } finally {
       setSavingSettings(false);
     }
@@ -153,14 +260,19 @@ export const SettingsPage = () => {
     setSendingTestEmail(true);
     setFormMessage(null);
     try {
-      // IDEIA(front-alertas-test-email): integrar POST /api/settings/alerts/test-email.
-      // Sugestao: mostrar no feedback success_count/fail_count e destinatarios com erro.
+      const response = await settingsService.sendTestEmail();
+      const data = response.data || {};
+      const successCount = data.success_count ?? 0;
+      const failCount = data.fail_count ?? 0;
+      const failedRecipients = (data.failed_recipients || []).join(', ');
       setFormMessage({
-        type: 'info',
-        text: 'IDEIA: implementar disparo real de e-mail de teste via backend.',
+        type: failCount > 0 ? 'warning' : 'success',
+        text: `Teste finalizado: ${successCount} sucesso(s), ${failCount} falha(s).${failedRecipients ? ` Falhas: ${failedRecipients}` : ''}`,
       });
+      await loadAlertPreview();
     } catch (err) {
-      setFormMessage({ type: 'error', text: 'Falha ao solicitar teste de e-mail.' });
+      const errorMessage = err.response?.data?.detail || 'Falha ao solicitar teste de e-mail.';
+      setFormMessage({ type: 'error', text: errorMessage });
     } finally {
       setSendingTestEmail(false);
     }
@@ -230,7 +342,7 @@ export const SettingsPage = () => {
           ) : (
             <div className="alerts-config">
               <div className="settings-note">
-                IDEIA: concluir integração de persistência, preview por regras e teste SMTP.
+                As configurações abaixo são salvas no PostgreSQL e usadas nos alertas.
               </div>
 
               <div className="form-grid">
@@ -305,7 +417,7 @@ export const SettingsPage = () => {
                 </label>
 
                 <label className="field-group">
-                  <span>Listar itens com diferença > (%)</span>
+                  <span>Listar itens com diferença &gt; (%)</span>
                   <input
                     type="number"
                     step="0.1"

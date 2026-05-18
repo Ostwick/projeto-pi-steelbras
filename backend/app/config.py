@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     
     # CORS
     frontend_url: str = "http://localhost:5173"
+    frontend_urls: Optional[str] = None
 
     # SMTP Alerts
     smtp_server: Optional[str] = None
@@ -74,6 +75,21 @@ class Settings(BaseSettings):
             return []
         raw = self.sync_product_codes.replace("\n", ",")
         return [code.strip() for code in raw.split(",") if code.strip()]
+
+    @property
+    def cors_origins(self) -> List[str]:
+        origins: List[str] = []
+        if self.frontend_urls:
+            origins.extend([item.strip() for item in self.frontend_urls.split(",") if item.strip()])
+        if self.frontend_url:
+            origins.append(self.frontend_url.strip())
+        seen = set()
+        result: List[str] = []
+        for origin in origins:
+            if origin not in seen:
+                seen.add(origin)
+                result.append(origin)
+        return result
     
     @property
     def sqlserver_url(self) -> str:

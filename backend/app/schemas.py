@@ -130,3 +130,30 @@ class AlertPreviewResponse(BaseModel):
     message: Optional[str] = None
     rule_hits: dict = Field(default_factory=dict)
     generated_at: Optional[datetime] = None
+
+
+class ProductAlertItem(BaseModel):
+    product_code: str
+    tipo_alerta: str
+    descricao: Optional[str] = None
+    custo_atual: Optional[float] = None
+    variacao_percentual: Optional[float] = None
+    mensagem_alerta: Optional[str] = None
+    severidade: Optional[str] = None
+    data_referencia: Optional[datetime] = None
+    sent: bool = False
+
+
+class ProductAlertsResponse(BaseModel):
+    product_code: str
+    data_referencia: Optional[str] = None
+    alerts: List[ProductAlertItem] = Field(default_factory=list)
+    pending_count: int = 0
+
+
+class AlertDispatchResponse(BaseModel):
+    product_code: str
+    sent_count: int
+    skipped_count: int
+    failed_recipients: List[str] = Field(default_factory=list)
+    message: str
