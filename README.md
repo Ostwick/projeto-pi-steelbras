@@ -136,124 +136,177 @@ Projeto PI/
 
 ## 🔧 Integração com suas Queries SQL
 
-### Passo 1: Adicione suas Queries
-
-No arquivo `backend/app/routes/queries.py`, adicione suas queries SQL:
-
-```python
-queries = {
-    "sua_query": "SELECT * FROM sua_tabela WHERE...",
-    "products": "SELECT * FROM seus_produtos",
-    "components": "SELECT * FROM seus_componentes WHERE product_id = :product_id",
-    # Adicione todas as suas queries aqui
-}
-```
-
-### Passo 2: Implemente os Endpoints
-
-No arquivo `backend/app/routes/products.py`, implemente a lógica para:
-
-1. **Search Products**: Use sua query para buscar produtos
-2. **Get Composition**: Retorne a árvore de composição
-3. **Get Activities**: Liste as atividades/processos
-4. **Get Summary**: Retorne o resumo do produto
-
-Exemplo:
-
-```python
-@router.get("/search", response_model=ProductSearchResponse)
-async def search_products(
-    query: str = Query(..., min_length=1),
-    limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db)
-):
-    # Use sua query SQL aqui
-    sql = text("SELECT * FROM products WHERE name LIKE :q")
-    results = db.execute(sql, {"q": f"%{query}%"}).fetchall()
-    
-    products = [ProductSummary(
-        product_id=r.id,
-        product_name=r.name,
-        product_code=r.code,
-        current_cost=r.cost,
-        last_update=r.updated_at
-    ) for r in results]
-    
-    return {"products": products, "total": len(products)}
-```
-
-## 📊 Estrutura de Dados Esperada
-
 ### Produtos
-```sql
-SELECT 
-    id as product_id,
-    name as product_name,
-    code as product_code,
-    current_cost
-FROM products
+
+No arquivo `backend/app/routes/products.py`, implemente endpoints para:
+
+1. **Search Products**: Busca de produtos por nome/código
+   ```sql
+   SELECT id as product_id,
+          name as product_name,
+          code as product_code,
+          current_cost
+   FROM products
+   WHERE name LIKE ? OR code LIKE ?
+   ```
+
+2. **Get Composition**: Árvore de composição com custos
+3. **Get Activities**: Lista de atividades/processos
+4. **Get Summary**: Resumo do produto
+
+### Mapa de Custos
+
+No arquivo `backend/app/routes/cost_map.py`, implemente:
+
+1. **GET /api/cost-map/tree** - Retorna árvore hierárquica de custos
+2. **GET /api/cost-map/export** - Exporta mapa em JSON/CSV
+
+### Sincronização
+
+No arquivo `backend/app/routes/sync.py`, implemente:
+
+1. **POST /api/sync/execute** - Executa sincronização de dados
+2. **GET /api/sync/status** - Retorna status da última sincronização
+
+Use `backend/app/services/sync_service.py` para implementar a lógica.
+
+### Queries Customizadas
+
+No arquivo `backend/app/routes/queries.py`:
+
+```python
+@router.post("/api/queries/execute")
+async def execute_query(query: QueryRequest, db: Session = Depends(get_db)):
+    # Validar e executar query customizada
+    results = db.execute(text(query.sql)).fetchall()
+    return {"results": results}
 ```
 
-### Componentes
-```sql
-SELECT 
-    id as component_id,
-    name as component_name,
-    quantity,
-    unit_cost,
-    product_id
-FROM components
-WHERE product_id = ?
+### Configurações
+
+No arquivo `backend/app/routes/settings.py`:
+
+```python
+@router.get("/api/settings")
+async def get_settings(db: Session = Depends(get_db)):
+    # Retornar configurações da aplicação
+    pass
+
+@router.post("/api/settings")
+async def update_settings(settings: SettingsSchema, db: Session = Depends(get_db)):
+    # Atualizar configurações
+    pass
 ```
 
-### Custos Históricos
-```sql
-SELECT 
-    component_id,
-    cost_value as cost,
-    cost_date as date
-FROM cost_history
-ORDER BY cost_date DESC
-LIMIT 5
-```
+## 🎨 Páginas e Componentes
 
-### Atividades
-```sql
-SELECT 
-    id as activity_id,
-    name as activity_name,
-    description,
-    unit_cost,
-    quantity,
-    total_cost,
-    updated_at as last_update,
-    product_id
-FROM activities
-WHERE product_id = ?
-```
+### Páginas Principais
 
-## 🎨 Personalização
+**AnalysisPage** (`frontend/src/pages/AnalysisPage.jsx`)
+- Página inicial com busca de produtos
+- Exibe composição e custos
+- Mostra atividades/processos
 
-### Temas e Cores
+**CostMapPage** (`frontend/src/pages/CostMapPage.tsx`)
+- Visualização hierárquica completa do mapa de custos
+- Análise detalhada de componentes e atividades
+
+**SettingsPage** (`frontend/src/pages/SettingsPage.jsx`)
+- Gerenciamento de configurações da aplicação
+- Integração com `backend/app/routes/settings.py`
+
+**SyncPage** (`frontend/src/pages/SyncPage.jsx`)
+- Controle de sincronização de dados
+- Monitoramento de status
+- Integração com `backend/app/services/sync_service.py`
+
+### Componentes Reutilizáveis
+
+- **ProductSearch**: Campo de busca com autocomplete
+- **CompositionTree**: Árvore visual de componentes
+- **CostMapTree**: Visualização hierárquica de custos (TypeScript)
+- **ActivitiesList**: Tabela de atividades/processos
+- **MainLayout**: Layout compartilhado entre páginas
+
+### Gerenciamento de Estado
+
+**Contexts** (`frontend/src/contexts/`)
+- **ApiContext**: Gerencia conexão e chamadas à API
+- **ProductContext**: Armazena dados de produtos em cache
+
+**Hooks** (`frontend/src/hooks/`)
+- **useCostMap**: Hook para gerenciar dados de mapa de custos
+
+### Personalização
 
 As cores principais estão definidas nos arquivos CSS:
 - Primária: `#007bff` (Azul)
 - Sucesso: `#28a745` (Verde)
 - Fundo: `#f5f5f5` (Cinza claro)
 
-Edite os arquivos `.css` para personalizar a aparência.
+Para adicionar novos componentes:
+1. Crie em `frontend/src/components/NovoComponente.jsx`
+2. Importe em `frontend/src/contexts/` ou `frontend/src/pages/`
+3. Integre com os contextos existentes
 
-### Adicionar Novos Componentes
+## 📂 Estrutura de Pastas Detalhada
 
-1. Crie um novo arquivo em `frontend/src/components/NovoComponente.jsx`
-2. Importe-o em `frontend/src/pages/AnalysisPage.jsx`
-3. Adicione-o ao JSX da página
-
-Exemplo de endpoint para análise:
-```python
-@router.get("/analytics/price-trends/{product_id}")
-async def get_price_trends(product_id: int, db: Session = Depends(get_db)):
-    """Retorna tendência de preços do produto ao longo do tempo"""
-    # Implementar lógica de análise
-    pass
+**Backend:**
 ```
+backend/
+├── app/
+│   ├── routes/
+│   │   ├── products.py    # ⭐ Busca e composição
+│   │   ├── cost_map.py    # ⭐ Mapa de custos
+│   │   ├── settings.py    # ⭐ Configurações
+│   │   ├── sync.py        # ⭐ Sincronização
+│   │   └── queries.py     # Queries customizadas
+│   ├── services/
+│   │   └── sync_service.py # Lógica de sincronização
+│   ├── config.py          # Variáveis de ambiente
+│   ├── database.py        # Conexão BD
+│   └── schemas.py         # Modelos Pydantic
+├── main.py                # FastAPI app
+└── requirements.txt       # Dependências
+```
+
+**Frontend:**
+```
+frontend/src/
+├── pages/
+│   ├── AnalysisPage.jsx    # ⭐ Principal
+│   ├── CostMapPage.tsx     # ⭐ Mapa de custos
+│   ├── SettingsPage.jsx    # ⭐ Configurações
+│   └── SyncPage.jsx        # ⭐ Sincronização
+├── components/
+│   ├── ProductSearch.jsx
+│   ├── CompositionTree.jsx
+│   ├── CostMapTree.tsx
+│   └── ActivitiesList.jsx
+├── contexts/
+│   ├── ApiContext.jsx
+│   └── ProductContext.jsx
+├── hooks/
+│   └── useCostMap.ts
+├── layouts/
+│   └── MainLayout.jsx
+└── services/
+    └── api.js
+```
+
+## 📚 Próximos Passos
+
+1. **Implemente as queries** em `backend/app/routes/products.py`
+2. **Configure** `.env` com credenciais do SQL Server
+3. **Teste endpoints** em `http://localhost:8000/docs`
+4. **Customize** as páginas conforme necessário
+5. **Implemente sincronização** em `backend/app/services/sync_service.py`
+6. **Adicione alertas** e lógica de decisão
+
+## 📝 Exemplo de Estrutura SQL
+
+**Tabelas esperadas:**
+- `Produtos` (id, name, code, current_cost)
+- `Componentes` (id, name, product_id, quantity, unit_cost)
+- `HistoricoCustos` (id, component_id, valor, data)
+- `Atividades` (id, name, product_id, unit_cost, total_cost)

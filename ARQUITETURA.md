@@ -18,8 +18,17 @@ Projeto PI/
 │   │       │   └── GET /api/products/{id}/composition
 │   │       │   └── GET /api/products/{id}/activities
 │   │       │   └── GET /api/products/{id}/summary
-│   │       └── queries.py              # 🛣️ Endpoints para queries SQL
-│   │           └── POST /api/queries/execute
+│   │       ├── cost_map.py             # 🛣️ Endpoints de mapa de custos
+│   │       │   └── GET /api/cost-map/tree
+│   │       │   └── GET /api/cost-map/export
+│   │       ├── queries.py              # 🛣️ Endpoints para queries SQL
+│   │       │   └── POST /api/queries/execute
+│   │       ├── settings.py             # ⚙️ Endpoints de configurações
+│   │       │   └── GET/POST /api/settings
+│   │       └── sync.py                 # 🔄 Endpoints de sincronização
+│   │           └── POST /api/sync/execute
+│   ├── 📁 services/
+│   │   └── sync_service.py             # 🔧 Lógica de sincronização
 │   ├── main.py                         # 🚀 Aplicação FastAPI principal
 │   ├── requirements.txt                # 📦 Dependências Python
 │   ├── .env.example                    # 📝 Exemplo de variáveis
@@ -32,36 +41,46 @@ Projeto PI/
 │   │   │   ├── ProductSearch.css
 │   │   │   ├── CompositionTree.jsx     # 🌳 Mostrar composição
 │   │   │   ├── CompositionTree.css
+│   │   │   ├── CostMapTree.tsx         # 💰 Visualizar mapa de custos
+│   │   │   ├── CostMapTree.css
 │   │   │   ├── ActivitiesList.jsx      # 📋 Listar atividades
 │   │   │   └── ActivitiesList.css
+│   │   ├── 📁 contexts/
+│   │   │   ├── ApiContext.jsx          # 🔌 Contexto da API
+│   │   │   ├── ProductContext.jsx      # 📦 Contexto de produtos
+│   │   │   └── index.js                # Exports dos contextos
+│   │   ├── 📁 hooks/
+│   │   │   └── useCostMap.ts           # 🎣 Hook customizado para custos
+│   │   ├── 📁 layouts/
+│   │   │   ├── MainLayout.jsx          # 🎨 Layout principal
+│   │   │   ├── MainLayout.css
+│   │   │   └── index.js
 │   │   ├── 📁 pages/
 │   │   │   ├── AnalysisPage.jsx        # 📄 Página principal
-│   │   │   └── AnalysisPage.css
+│   │   │   ├── AnalysisPage.css
+│   │   │   ├── CostMapPage.tsx         # 📊 Página de mapa de custos
+│   │   │   ├── CostMapPage.css
+│   │   │   ├── SettingsPage.jsx        # ⚙️ Página de configurações
+│   │   │   ├── SettingsPage.css
+│   │   │   ├── SyncPage.jsx            # 🔄 Página de sincronização
+│   │   │   └── SyncPage.css
 │   │   ├── 📁 services/
 │   │   │   └── api.js                  # 🔌 Cliente HTTP (axios)
 │   │   ├── App.jsx                     # 🎨 Componente raiz
 │   │   ├── App.css
-│   │   ├── main.jsx                    # 🔧 Entry point
-│   │
+│   │   └── main.jsx                    # 🔧 Entry point
 │   ├── index.html                      # 📄 HTML principal
 │   ├── vite.config.js                  # ⚙️ Config Vite
 │   ├── package.json                    # 📦 Dependências Node
 │   ├── .env.example                    # 📝 Variáveis de exemplo
 │   └── .env                            # ⚠️ Configurar se necessário
 │
-├── 📁 docs/                            # 📚 Documentação
-│   ├── SETUP.md                        # 🔧 Guia completo de instalação
-│   ├── INTEGRACAO_SQL.md              # 🔌 Como integrar suas queries
-│   └── EXEMPLO_SQL_SERVER.md          # 💾 Scripts SQL de exemplo
+├── 📁 queries/                         # 📚 Queries SQL reutilizáveis
+│   └── BOM.sql                         # 📋 Bill of Materials
 │
-├── 📁 .github/
-│   └── copilot-instructions.md        # 🤖 Instruções para IA
-│
-├── COMECE_AQUI.md                      # 🚀 Guia rápido
 ├── README.md                           # 📖 Documentação principal
-├── .gitignore                          # 🔒 Ignorar no Git
-│
-└── 📝 ARQUITETURA.md (este arquivo)   # 📐 Visão técnica
+├── ARQUITETURA.md                      # 📐 Visão técnica (este arquivo)
+└── .gitignore                          # 🔒 Ignorar no Git
 ```
 
 ## 🎯 Fluxo de Dados
